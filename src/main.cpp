@@ -26,130 +26,69 @@ float shuntvoltage = 0;
 float busvoltage = 0;
 float loadvoltage = 0;
 
+void blink(uint8_t pin, uint8_t del, uint8_t times){
+  for (uint8_t i = 0; i < times*2; i++)
+  {
+    digitalWrite(pin, !digitalRead(pin));
+    delay(del);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   
-  pinMode(comm, OUTPUT);
-  pinMode(output, OUTPUT);
-  pinMode(SD_error, OUTPUT);
+  pinMode(comm,       OUTPUT);
+  pinMode(output,     OUTPUT);
+  pinMode(SD_error,   OUTPUT);
 
-  digitalWrite(comm, HIGH);
-  digitalWrite(output, HIGH);
-  digitalWrite(SD_error, HIGH);
+  digitalWrite(comm,      HIGH);
+  digitalWrite(output,    HIGH);
+  digitalWrite(SD_error,  HIGH);
   
-  delay(1000);
+  delay(500);
 
-  digitalWrite(comm, LOW);
-  digitalWrite(output, LOW);
-  digitalWrite(SD_error, LOW);
+  digitalWrite(comm,      LOW);
+  digitalWrite(output,    LOW);
+  digitalWrite(SD_error,  LOW);
   
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-    digitalWrite(comm, LOW);
-    delay(50);
-    digitalWrite(comm, HIGH);
-    delay(50);
-  }
-
   if (!ina219.begin()) {
-    // Megnézi, hogy rá van e csatlakozva az árammérő, ha nem, akkor villog
-    Serial.println("Failed to find INA219 chip");
+    // Initiate INA219 sensor communication
     while (1) {
-      digitalWrite(comm, LOW);
-      delay(100);
-      digitalWrite(comm, HIGH);
-      delay(100);
+      //Error could not start comm
+      blink(comm, 100, 1);
     }
   }
 
-
+  while (!Serial) {
+    // wait for serial port to connect. Needed for native USB port only
+    blink(comm, 50, 1);
+  }
+  Serial.println("INA219 sensor initialized.");
   Serial.print("Initializing SD card...");
 
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
     // don't do anything more:
-    bool flash = false;
     while (1)
     {
-      digitalWrite(SD_error, flash);
-      flash = !flash;
-      delay(500);
+      blink(SD_error, 500, 1);
     }
   }
   Serial.println("card initialized.");
+
+  /**
+   *  ################    NEED TO DO    ################
+   */
   
-  for(int x = 0; x < 4; x++)
-  {
-    digitalWrite(output, HIGH);
-    delay(250);
-    digitalWrite(output, LOW);
-    delay(250);
-  }
+  // Everithing is done
+  blink(output, 250, 4);
   
-  delay(1000);
+  delay(500);
 }
 
 void loop() {
-  File dataFile = SD.open("amper.txt", FILE_WRITE);
-  // if the file is available, write to it:
-  if (dataFile) {
-    digitalWrite(SD_error, LOW);
-    shuntvoltage = ina219.getShuntVoltage_mV();
-    busvoltage = ina219.getBusVoltage_V();
-    volt = busvoltage + (shuntvoltage / 1000);
-    amp = ina219.getCurrent_mA();
-    
-    Serial.print((String)count + ": ");
-    
-    count++;
-    
-    if(abs(amp) > 30)
-    { 
-      zero_count = 0;
-      mAh += amp;
-      dataFile.println((String)volt + " V\t" + (String)amp + " mA\t" + (String)(mAh/360));
-      dataFile.close();
-    }
-    else { zero_count++; Serial.print("--"); }
-    
-    if(zero_count > 10){
 
-      if(!first)
-      {
-        first = true;
-        File mAhs = SD.open("mAh.txt", FILE_WRITE);
-        if(mAhs)
-        {
-          mAhs.println((String)(mAh/360) + "\n");
-          mAhs.close();
-        }
-        else
-        {
-          Serial.println("Error opening mAh.txt");
-        }
-      }
 
-      
-      digitalWrite(comm, HIGH);
-      digitalWrite(output, HIGH);      
-    }
-    else first = false;
-    Serial.println((String)volt + " V\t" + (String)amp + " mA\tCurrent mAh: " + (String)(mAh/360));
-  }
-  // if the file isn't open, pop up an error:
-  else {
-    Serial.println("error opening amper_read.txt");
-    digitalWrite(SD_error, HIGH);
-    
-    bool flash = false;
-    
-    for(int i = 0; i<5; i++)
-    {
-      digitalWrite(SD_error, flash);
-      flash = !flash;
-      delay(100);
-    }
-  }
   delay(10000);
 }
