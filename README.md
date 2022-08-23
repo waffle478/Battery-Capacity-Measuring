@@ -2,13 +2,13 @@
 Measuring the capacity of one (or more) 1850 type Li-Ion battery with an Arduino nano and an INA219 sensor
 
 ## **TODO**
-[ ] Check SD card if it is available during write
+- [ ] Check SD card if it is available during write
 
-[ ] Read files from SD card and name the files accordingly
+- [ ] Read files from SD card and name the files accordingly
 
-[ ] Make changes to the Serial and I2C comm so it does not wait for the I2C to start Serial comm.
+- [ ] Make changes to the Serial and I2C comm so it does not wait for the I2C to start Serial comm.
 
-[ ] Make multiple files. So the main.cpp will not look like a dumbster
+- [ ] Make multiple files. So the main.cpp will not look like a dumbster
 
 **SIGNALS**
 
@@ -44,5 +44,4 @@ Every cycle should be measured and saved in a different txt file
 * [ ] write data to file
 * [ ] if the charging or discharging is done write the output to the test file and colse the test.
   * go to the next test
-
   * OR end the whole test
