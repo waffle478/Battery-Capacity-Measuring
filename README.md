@@ -17,7 +17,7 @@ Done signal
 
 ****REQUIREMENTS****
 
-[ON_START]
+[ON START]
     load necessary comm ports
     create new folder for measurement
     create measurement cycle file
